@@ -15,20 +15,27 @@ async function startWorkflow(id, payload, email) {
     logger.log(id, `Workflow saved: ${JSON.stringify(workflow)}`);
 
     const logCallback = async (log) => {
+        console.log('Log callback triggered:', log); 
         logger.log(id, log);
         workflow.logs.push(log); 
-
-        // Mettre à jour les étapes en fonction des logs
+    
+        console.log(`LOG BEFORE UPDATE: ${JSON.stringify(workflow.payload)}`); 
+    
+      
         if (log.includes('Ending activity: Activity_1prf23f')) {
-            payload.ticketCreated = true; 
+            workflow.payload.ticketCreated = true; 
+            console.log(`ticketCreated set to true`); 
         } else if (log.includes('Ending activity: Activity_1jh0wra')) {
-            payload.appointmentScheduled = true; 
+            workflow.payload.appointmentScheduled = true;
+            console.log(`appointmentScheduled set to true`);
         } else if (log.includes('Ending activity: Activity_1ra2c2y')) {
-            payload.emailSent = true;
+            workflow.payload.emailSent = true;
+            console.log(`emailSent set to true`); 
         }
-
+        
+    
         try {
-            await workflow.save(); // Save after each log entry
+            await workflow.save(); 
         } catch (error) {
             logger.log(id, `Error saving workflow: ${error.message}`);
         }
@@ -49,3 +56,6 @@ async function startWorkflow(id, payload, email) {
 }
 
 module.exports = { startWorkflow };
+
+
+

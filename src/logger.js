@@ -8,6 +8,7 @@ class Logger {
             this.logs[id] = [];
         }
         this.logs[id].push(message);
+       
     }
 
     getLogs(id) {
