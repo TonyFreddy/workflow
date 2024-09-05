@@ -53,10 +53,10 @@ class WorkflowService {
     async sendEmail(to, subject, text) {
         try {
             const info = await this.transporter.sendMail({
-                from: process.env.EMAIL_FROM,
-                to: to,
+                from: process.env.EMAIL_USER,
+                to: email,
                 subject: subject,
-                text: text
+                html: text
             });
             return info;
         } catch (error) {
