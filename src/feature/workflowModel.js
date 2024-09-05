@@ -5,7 +5,10 @@ const workflowSchema = new mongoose.Schema({
     payload: {
         problemDescription: String,
         solution: String,
-        email: String
+        email: String,
+        ticketCreated: Boolean,
+        appointmentScheduled: Boolean,
+        emailSent: Boolean
     },
     logs: [String],
     createdAt: { type: Date, default: Date.now },

@@ -1,26 +1,50 @@
 const express = require('express');
+const router = express.Router();
+const WorkflowService = require('./workflowService');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../logger');
-const { validateWorkflow } = require('../validator/joi'); 
-const { startWorkflow } = require('./workflowService');
-
-const router = express.Router();
 
 router.post('/workflow', async (req, res) => {
-    const id = uuidv4();
-    const { payload, email } = req.body;
-
-    const { error } = validateWorkflow({ payload, email });
-    if (error) {
-        return res.status(400).json({ message: error.details.map(err => err.message) });
-    }
-
     try {
-        const response = await startWorkflow(id, payload, email);
-        res.json(response);
-    } catch (err) {
-        logger.log(id, `Error: ${err.message}`);
-        res.status(500).json({ message: 'Error creating the workflow', error: err.message });
+        const { problemDescription, email } = req.body;
+        
+        if (!problemDescription || !email) {
+            return res.status(400).json({ error: 'Problem description and email are required.' });
+        }
+
+        const workflowId = uuidv4();
+        logger.log(workflowId, 'Workflow started');
+
+        const result = await WorkflowService.startWorkflow(workflowId, { problemDescription }, email);
+
+        logger.log(workflowId, 'Workflow completed');
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while starting the workflow.' });
+    }
+});
+
+router.get('/status/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const workflow = await WorkflowService.getWorkflowStatus(id);
+        
+        if (!workflow) {
+            return res.status(404).json({ error: 'Workflow not found.' });
+        }
+
+        res.status(200).json({
+            id: workflow._id,
+            status: workflow.status,
+            steps: {
+                ticketCreated: workflow.payload.ticketCreated,
+                appointmentScheduled: workflow.payload.appointmentScheduled,
+                emailSent: workflow.payload.emailSent
+            },
+            logs: workflow.logs
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while retrieving the workflow status.' });
     }
 });
 

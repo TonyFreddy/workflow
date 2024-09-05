@@ -1,4 +1,4 @@
-const { Engine } = require('bpmn-engine'); 
+const { Engine } = require('bpmn-engine');
 const fs = require('fs');
 const path = require('path');
 
@@ -19,25 +19,37 @@ class WorkflowEngine {
     }
 
     executeWorkflow(engine, payload, logCallback) {
-        return engine.execute({
-            variables: payload,
-            listeners: {
-                'activity.start': (activity) => {
-                    logCallback(`Starting activity: ${activity.id}`);
-                },
-                'activity.end': (activity) => {
-                    logCallback(`Ending activity: ${activity.id}`);
-                },
-                'end': (execution) => {
-                    logCallback('Workflow execution finished.');
-                },
-                'start': () => {
-                    logCallback('Workflow started.');
-                },
-                'gateway.pass': (gateway) => {
-                    logCallback(`Passing gateway: ${gateway.id}`);
-                }
-            }
+        return new Promise((resolve, reject) => {
+            engine.execute({
+                variables: payload,
+                listeners: {
+                    'activity.enter': (elementApi) => {
+                        logCallback(`Entering activity: ${elementApi.id}`);
+                    },
+                    'activity.start': (elementApi) => {
+                        logCallback(`Starting activity: ${elementApi.id}`);
+                    },
+                    'activity.end': (elementApi) => {
+                        logCallback(`Ending activity: ${elementApi.id}`);
+                        console.log('Activity finished successfully:', elementApi.id);
+                    },
+                    'activity.leave': (elementApi) => {
+                        logCallback(`Leaving activity: ${elementApi.id}`);
+                    },
+                    'wait': (elementApi) => {
+                        logCallback(`Waiting on activity: ${elementApi.id}`);
+                    },
+                    'error': (error, elementApi) => {
+                        logCallback(`Error in activity ${elementApi.id}: ${error.message}`);
+                        console.error('Error during workflow execution:', error);
+                        reject(error);
+                    },
+                    'end': () => {
+                        logCallback('Workflow completed');
+                        resolve();
+                    }
+                }                
+            });
         });
     }
 }
