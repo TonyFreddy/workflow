@@ -11,6 +11,7 @@ const workflowSchema = new mongoose.Schema({
         emailSent: Boolean
     },
     logs: [String],
+    status: String,
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

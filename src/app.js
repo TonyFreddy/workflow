@@ -16,7 +16,7 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-// Augmenter le timeout à 5 minutes (300000 ms)
+
 app.use((req, res, next) => {
     req.setTimeout(300000);
     res.setTimeout(300000);
