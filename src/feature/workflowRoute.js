@@ -23,7 +23,7 @@ router.post('/workflow', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while starting the workflow.' });
     }
 });
-
+/*
 router.get('/status/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -46,6 +46,6 @@ router.get('/status/:id', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while retrieving the workflow status.' });
     }
-});
+});*/
 
 module.exports = router;

@@ -9,18 +9,7 @@ const { sendEmail } = require("../mailler");
 dotenv.config();
 
 class WorkflowService {
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-  }
-
+ 
   async createTicket(fullname, email, subject, issues) {
     try {
       const fullnameTest = fullname
@@ -64,10 +53,6 @@ class WorkflowService {
       temp.ticketUid = ticketUid
       temp.ticketUrl = response.data.ticket.url
 
-      if(response){
-        console.log("Créé ticket avec succès")
-      }
-     
   
       return { success: true, ticketUid: ticketUid, ticketUrl: response.data.ticket.url }
     } catch (error) {
@@ -77,32 +62,26 @@ class WorkflowService {
   }
 
   async scheduleAppointment(email, problemDescription) {
-    console.log("Début de scheduleAppointment:", email, problemDescription);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-        console.log("Fin de scheduleAppointment avec succes");
-      return {
-        scheduled: true,
-        date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      };
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        return {
+            scheduled: true,
+            date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), 
+        };
     } catch (error) {
-      console.error("Erreur lors de la planification du rendez-vous:", error);
-      console.log("Fin de scheduleAppointment avec erreur");
-      throw new Error("Failed to schedule appointment");
+        throw new Error("Failed to schedule appointment");
     }
-  }
+}
 
   async sendEmail(to, subject, text) {
     try {
       const result = await sendEmail(to, subject, text);
       if (result) {
-        console.log("Email sent successfully");
         return true;
       } else {
         throw new Error("Failed to send email");
       }
     } catch (error) {
-      console.error("Error in sendEmail:", error);
       throw new Error("Failed to send email");
     }
   }

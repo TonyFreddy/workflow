@@ -1,10 +1,30 @@
 const { Engine } = require('bpmn-engine');
 const fs = require('fs');
 const path = require('path');
+const xml2js = require('xml2js');
 
 class WorkflowEngine {
     constructor() {
-        this.source = fs.readFileSync(path.join(__dirname, '../workflows/workflow.bpmn'), 'utf8');
+        this.source = this.loadBpmnFile('../workflows/workflow.bpmn');
+    }
+
+    loadBpmnFile(filePath) {
+        try {
+            const fileContent = fs.readFileSync(path.join(__dirname, filePath), 'utf8');
+            this.validateBpmn(fileContent);
+            return fileContent;
+        } catch (error) {
+            console.error('Error loading BPMN file:', error.message);
+            throw new Error('The BPMN file is invalid or not found.');
+        }
+    }
+    
+    validateBpmn(xml) {
+        xml2js.parseString(xml, (err, result) => {
+            if (err || !result['bpmn:definitions']) {
+                throw new Error('The BPMN file is malformed.');
+            }
+        });
     }
 
     createEngine(payload) {
@@ -31,7 +51,6 @@ class WorkflowEngine {
                     },
                     'activity.end': (elementApi) => {
                         logCallback(`Ending activity: ${elementApi.id}`);
-                        console.log('Activity finished successfully:', elementApi.id);
                     },
                     'activity.leave': (elementApi) => {
                         logCallback(`Leaving activity: ${elementApi.id}`);
@@ -41,7 +60,6 @@ class WorkflowEngine {
                     },
                     'error': (error, elementApi) => {
                         logCallback(`Error in activity ${elementApi.id}: ${error.message}`);
-                        console.error('Error during workflow execution:', error);
                         reject(error);
                     },
                     'end': () => {
