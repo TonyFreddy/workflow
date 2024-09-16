@@ -3,7 +3,8 @@ const dotenv = require("dotenv");
 const axios = require("axios");
 const Workflow = require("./workflowModel");
 const logger = require("../logger");
-const workflowEngine = require("./workflowEngine");
+const WorkflowEngine = require("./workflowEngine");
+const createWorkflowSession = require("./workflowEngine.js")
 const { sendEmail } = require("../mailler");
 
 dotenv.config();
@@ -71,123 +72,123 @@ class WorkflowService {
     } catch (error) {
         throw new Error("Failed to schedule appointment");
     }
-}
-
-  async sendEmail(to, subject, text) {
-    try {
-      const result = await sendEmail(to, subject, text);
-      if (result) {
-        return true;
-      } else {
-        throw new Error("Failed to send email");
-      }
-    } catch (error) {
-      throw new Error("Failed to send email");
-    }
-  }
-
-  async processWorkflowStep(step, variables) {
-    switch (step) {
-      case "createTicket":
-        variables.ticketCreated = await this.createTicket(
-          variables.problemDescription
-        );
-        break;
-      case "scheduleAppointment":
-        variables.appointmentScheduled = await this.scheduleAppointment(
-          variables.email,
-          variables.problemDescription
-        );
-        break;
-      case "sendEmail":
-        const emailSubject = "Follow-up on your issue";
-        const emailText = `Dear customer,\n\nWe have received your report regarding: ${variables.problemDescription}.\n\nWe are working on a solution and will keep you informed.\n\nBest regards,\nSupport team`;
-        variables.emailSent = await this.sendEmail(
-          variables.email,
-          emailSubject,
-          emailText
-        );
-        break;
-      default:
-        console.log("Unknown step:", step);
-    }
-    return variables;
-  }
-
-  async startWorkflow(id, payload, email) {
-    payload.ticketCreated = false;
-    payload.appointmentScheduled = false;
-    payload.emailSent = false;
-    payload.email = email;
-    payload.status = "STARTED";
-  
-    const workflow = new Workflow({
-      _id: id,
-      payload,
-      logs: ["Workflow started."],
-      status: "STARTED",
-    });
-  
-    try {
-      await workflow.save();
-    } catch (error) {
-      throw error;
-    }
-  
-    const logAndUpdateStatus = async (status, log) => {
-      logger.log(id, log);
-      workflow.logs.push(log);
-      workflow.status = status;
-      try {
-        await workflow.save();
-      } catch (error) {
-        logger.log(id, `Error saving workflow: ${error.message}`);
-      }
-    };
-  
-    try {
-      await logAndUpdateStatus("CREATING_TICKET", "Starting to create ticket");
-      const ticketResult = await this.createTicket("Tony", "tony@example.com", "test", "test");
-      workflow.payload.ticketCreated = true;
-      await logAndUpdateStatus("TICKET_CREATED", "Ticket created successfully");
-  
-
-      await logAndUpdateStatus("SCHEDULING_APPOINTMENT", "Starting to schedule appointment");
-      const appointmentResult = await this.scheduleAppointment(email, payload.problemDescription);
-      workflow.payload.appointmentScheduled = true;
-      await logAndUpdateStatus("APPOINTMENT_SCHEDULED", "Appointment scheduled successfully");
-  
-
-      await logAndUpdateStatus("SENDING_EMAIL", "Starting to send email");
-      const emailSubject = "Follow-up on your issue";
-      const emailText = `Dear customer,\n\nWe have received your report regarding: ${payload.problemDescription}.\n\nWe are working on a solution and will keep you informed.\n\nBest regards,\nSupport team`;
-      await this.sendEmail(email, emailSubject, emailText);
-      workflow.payload.emailSent = true;
-      await logAndUpdateStatus("EMAIL_SENT", "Email sent successfully");
-  
-      workflow.status = "COMPLETED";
-      await workflow.save();
-    } catch (error) {
-      workflow.logs.push(`Error: ${error.message}`);
-      workflow.status = "ERROR";
-      await workflow.save();
-      throw error;
-    }
-  
-    const updatedWorkflow = await Workflow.findById(id);
-  
-    return {
-      id,
-      message: "Workflow completed",
-      email: updatedWorkflow.payload.email,
-      status: updatedWorkflow.status,
-      steps: {
-        ticketCreated: updatedWorkflow.payload.ticketCreated,
-        appointmentScheduled: updatedWorkflow.payload.appointmentScheduled,
-        emailSent: updatedWorkflow.payload.emailSent,
-      },
-    };
   }
 }
+//   async startEngine() {  
+//     // Example payload for the workflow
+//     const workflowPayload = {
+//       email: 'user@example.com',
+//       taskId: 101
+//     };
+    
+//     // Creating and starting a workflow session
+//     const new_engine = WorkflowEngine.createEngine(workflowPayload);
+//     new_engine.startSession();
+// }
+
+  // async processWorkflowStep(step, variables) {
+  //   switch (step) {
+  //     case "createTicket":
+  //       variables.ticketCreated = await this.createTicket(
+  //         variables.problemDescription
+  //       );
+  //       break;
+  //     case "scheduleAppointment":
+  //       variables.appointmentScheduled = await this.scheduleAppointment(
+  //         variables.email,
+  //         variables.problemDescription
+  //       );
+  //       break;
+  //     case "sendEmail":
+  //       const emailSubject = "Follow-up on your issue";
+  //       const emailText = `Dear customer,\n\nWe have received your report regarding: ${variables.problemDescription}.\n\nWe are working on a solution and will keep you informed.\n\nBest regards,\nSupport team`;
+  //       variables.emailSent = await this.sendEmail(
+  //         variables.email,
+  //         emailSubject,
+  //         emailText
+  //       );
+  //       break;
+  //     default:
+  //       console.log("Unknown step:", step);
+  //   }
+  //   return variables;
+  // }
+
+  // async startWorkflow(id, payload, email) {
+  //   payload.ticketCreated = false;
+  //   payload.appointmentScheduled = false;
+  //   payload.emailSent = false;
+  //   payload.email = email;
+  //   payload.status = "STARTED";
+  
+  //   const workflow = new Workflow({
+  //     _id: id,
+  //     payload,
+  //     logs: ["Workflow started."],
+  //     status: "STARTED",
+  //   });
+  
+  //   try {
+  //     await workflow.save();
+  //   } catch (error) {
+  //     throw error;
+  //   }
+
+  
+  //   const logAndUpdateStatus = async (status, log) => {
+  //     logger.log(id, log);
+  //     workflow.logs.push(log);
+  //     workflow.status = status;
+  //     try {
+  //       await workflow.save();
+  //     } catch (error) {
+  //       logger.log(id, `Error saving workflow: ${error.message}`);
+  //     }
+  //   };
+  
+  //   try {
+  //     await logAndUpdateStatus("CREATING_TICKET", "Starting to create ticket");
+  //     const ticketResult = await this.createTicket("Tony", "tony@example.com", "test", "test");
+  //     workflow.payload.ticketCreated = true;
+  //     await logAndUpdateStatus("TICKET_CREATED", "Ticket created successfully");
+  
+
+  //     await logAndUpdateStatus("SCHEDULING_APPOINTMENT", "Starting to schedule appointment");
+  //     const appointmentResult = await this.scheduleAppointment(email, payload.problemDescription);
+  //     workflow.payload.appointmentScheduled = true;
+  //     await logAndUpdateStatus("APPOINTMENT_SCHEDULED", "Appointment scheduled successfully");
+  
+
+  //     await logAndUpdateStatus("SENDING_EMAIL", "Starting to send email");
+  //     const emailSubject = "Follow-up on your issue";
+  //     const emailText = `Dear customer,\n\nWe have received your report regarding: ${payload.problemDescription}.\n\nWe are working on a solution and will keep you informed.\n\nBest regards,\nSupport team`;
+  //     await this.sendEmail(email, emailSubject, emailText);
+  //     workflow.payload.emailSent = true;
+  //     await logAndUpdateStatus("EMAIL_SENT", "Email sent successfully");
+  
+  //     workflow.status = "COMPLETED";
+  //     await workflow.save();
+  //   } catch (error) {
+  //     workflow.logs.push(`Error: ${error.message}`);
+  //     workflow.status = "ERROR";
+  //     await workflow.save();
+  //     throw error;
+  //   }
+  
+  //   const updatedWorkflow = await Workflow.findById(id);
+  
+  //   return {
+  //     id,
+  //     message: "Workflow completed",
+  //     email: updatedWorkflow.payload.email,
+  //     status: updatedWorkflow.status,
+  //     steps: {
+  //       ticketCreated: updatedWorkflow.payload.ticketCreated,
+  //       appointmentScheduled: updatedWorkflow.payload.appointmentScheduled,
+  //       emailSent: updatedWorkflow.payload.emailSent,
+  //     },
+  //   };
+  // }
+//}
 
 module.exports = new WorkflowService();
