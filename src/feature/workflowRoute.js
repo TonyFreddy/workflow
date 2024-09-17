@@ -7,7 +7,7 @@ const {createWorkflowSession} = require("./workflowEngine.js")
 
 
 router.post('/workflow', async (req, res) => {
-    try {
+    //try {
         const { problemDescription, email } = req.body;
         
         if (!problemDescription || !email) {
@@ -28,9 +28,9 @@ router.post('/workflow', async (req, res) => {
 
         logger.log(workflowId, 'Workflow completed');
         res.status(200).json(resultat);
-    } catch (error) {
-        res.status(500).json({ error: 'An error occurred while starting the workflow.' });
-    }
+    // } catch (error) {
+    //     res.status(500).json({ error: 'An error occurred while starting the workflow.' });
+    // }
 });
 /*
 router.get('/status/:id', async (req, res) => {
