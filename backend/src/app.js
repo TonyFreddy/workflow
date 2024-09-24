@@ -1,11 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
-const route = require('./feature/workflowRoute');
+const route = require('./routes/workflowRoute');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
+//const dotenv = require('dotenv');
 
-dotenv.config();
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,7 +23,7 @@ app.use((req, res, next) => {
     next();
 });   
 
-app.use('/', route);
+app.use('/workflow', route);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

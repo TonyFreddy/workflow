@@ -1,11 +1,11 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const axios = require("axios");
-const Workflow = require("./workflowModel");
-const logger = require("../logger");
-const WorkflowEngine = require("./workflowEngine");
-const createWorkflowSession = require("./workflowEngine.js")
-const { sendEmail } = require("../mailler");
+const Workflow = require("../models/workflowModel.js");
+const logger = require("../logger.js");
+const WorkflowEngine = require("../engine/workflowEngine.js");
+const createWorkflowSession = require("../engine/workflowEngine.js")
+const { sendEmail } = require("../mailler.js");
 
 dotenv.config();
 
