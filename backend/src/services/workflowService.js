@@ -62,6 +62,77 @@ class WorkflowService {
     }
   }
 
+  async getTicketStatus(ticketUid) {
+    try {
+        const apiUrl = `https://ba17-154-66-135-180.ngrok-free.app/api/v1/tickets/status?uid=${ticketUid}`;
+
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
+            Accept: '*/*',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            Origin: 'https://ba17-154-66-135-180.ngrok-free.app',
+            Referer: 'http://test.localhost:3000/newissue',
+            Cookie: 'connect.sid=s%3Aax5zWyBtbh5zF9wBL6dtZ-NX0I00lw43.UHAAW5pyZfK8UA3ocQUSla8AlJXl7ESxLJH8Az4TiYU; $trudesk%3Asidebar%3Aexpanded=true'
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+
+        return { success: true, status: response.data.status };
+    } catch (error) {
+        console.error('Error retrieving ticket status:', error.response ? error.response.data : error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+
+  async closeTicket(ticketUid) {
+    try {
+        const apiUrl = `https://ba17-154-66-135-180.ngrok-free.app/api/v1/tickets/close?uid=${ticketUid}`;
+
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
+            Accept: '*/*',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            Origin: 'https://ba17-154-66-135-180.ngrok-free.app',
+            Referer: 'http://test.localhost:3000/newissue',
+            Cookie: 'connect.sid=s%3Aax5zWyBtbh5zF9wBL6dtZ-NX0I00lw43.UHAAW5pyZfK8UA3ocQUSla8AlJXl7ESxLJH8Az4TiYU; $trudesk%3Asidebar%3Aexpanded=true'
+        };
+
+        const response = await axios.post(apiUrl, {}, { headers });
+
+        return { success: true, message: response.data.message };
+    } catch (error) {
+        console.error('Error closing ticket:', error.response ? error.response.data : error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+
+  async cancelTicket(ticketUid) {
+    try {
+        const apiUrl = `https://ba17-154-66-135-180.ngrok-free.app/api/v1/tickets/cancel?uid=${ticketUid}`;
+
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
+            Accept: '*/*',
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            Origin: 'https://ba17-154-66-135-180.ngrok-free.app',
+            Referer: 'http://test.localhost:3000/newissue',
+            Cookie: 'connect.sid=s%3Aax5zWyBtbh5zF9wBL6dtZ-NX0I00lw43.UHAAW5pyZfK8UA3ocQUSla8AlJXl7ESxLJH8Az4TiYU; $trudesk%3Asidebar%3Aexpanded=true'
+        };
+
+        const response = await axios.post(apiUrl, {}, { headers });
+
+        return { success: true, message: response.data.message };
+    } catch (error) {
+        console.error('Error canceling ticket:', error.response ? error.response.data : error.message);
+        return { success: false, error: error.message };
+    }
+}
+
   async scheduleAppointment(email, problemDescription) {
     try {
         await new Promise((resolve) => setTimeout(resolve, 2000));
